@@ -1,8 +1,10 @@
 from flask import Flask, request
+from flask_cors import CORS
 from exts import db
 import config
 
 app = Flask(__name__)
+CORS(app, origins="http://localhost:9527")
 app.config.from_object(config)
 db.init_app(app)
 

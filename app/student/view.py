@@ -1,9 +1,6 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from .model import add
 import os
-import base64
-import io
-from PIL import Image
 
 
 student = Blueprint('student', __name__)
@@ -21,15 +18,24 @@ def register():
     name = request.form.get("name")
     subject = request.form.get("subject")
     course_ids = request.form.get("course_ids")
-    file = request.form.get("file")
+    file = request.files.get("file")
+
+    print(
+        f"Received data - username: {username}, password: {password}, name: {name}, subject: {subject}, course_ids: {course_ids}, file: {file is not None}")
+
     if not username or not password or not name or not subject or not file:
+        print("Error: Incomplete information")
         return "Incomplete information"
-    dir = ""  # 添加保存路径
+    dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'faces')  # 添加保存路径
     filename = name + ".jpg"
     filepath = os.path.join(dir, filename)
-    image = base64.b64decode(file)
-    with Image.open(io.BytesIO(image)) as img:
-        img.save(filepath)
+
+    try:
+        file.save(filepath)
+        print(f"Image saved to {filepath}")
+    except Exception as e:
+        print(f"Error saving image: {e}")
+        return "Failed to save image"
     # 原架构
     # sql = "SELECT * FROM student WHERE username = '" + username + "'"
     # data = mysql_operate.db.select_db(sql)
@@ -42,7 +48,17 @@ def register():
     #     mysql_operate.db.execute_db(sql2)
     #     return 'User created successfully'
     res, info = add(username, password, name, subject, course_ids)
+    print(f"Database insert result: {info}, Database return info: {res}")
+
     if not res:
-        return "Register unsuccessfully"
+        print("Error: Register unsuccessful")
+        return jsonify({
+            "success": False,
+            "message": "Register unsuccessfully"
+        }), 400  # 返回 400 状态码表示客户端错误
     else:
-        return "Register successfully"
+        print("Success: Register successfully")
+        return jsonify({
+            "success": True,
+            "message": "Register successfully"
+        }), 200  # 返回 200 状态码表示成功
