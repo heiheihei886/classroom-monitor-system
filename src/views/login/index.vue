@@ -46,21 +46,8 @@
       </el-tooltip>
 
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+      <el-button type="primary" style="width:100%;margin-bottom:30px;" @click="handleRegister">Register</el-button>
 
-      <div style="position:relative">
-        <div class="tips">
-          <span>Username : admin</span>
-          <span>Password : any</span>
-        </div>
-        <div class="tips">
-          <span style="margin-right:18px;">Username : editor</span>
-          <span>Password : any</span>
-        </div>
-
-        <el-button class="thirdparty-button" type="primary" @click="showDialog=true">
-          Or connect with
-        </el-button>
-      </div>
     </el-form>
 
     <el-dialog title="Or connect with" :visible.sync="showDialog">
@@ -74,7 +61,7 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
+
 import SocialSign from './components/SocialSignin'
 
 export default {
@@ -82,8 +69,8 @@ export default {
   components: { SocialSign },
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
+      if (!value) {
+        callback(new Error('Please enter user name'))
       } else {
         callback()
       }
@@ -138,6 +125,10 @@ export default {
     // window.removeEventListener('storage', this.afterQRScan)
   },
   methods: {
+    handleRegister() {
+      // 这里添加注册逻辑，例如跳转到注册页面
+      this.$router.push({ path: '/register' })
+    },
     checkCapslock(e) {
       const { key } = e
       this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z')
@@ -170,6 +161,41 @@ export default {
         }
       })
     },
+    // async handleLogin() {
+    //   try {
+    //     await this.$refs.loginForm.validate()
+    //   } catch (validationError) {
+    //     this.$message.error('Please fill in the form correctly.')
+    //     return
+    //   }
+
+    //   // 构造登录数据
+    //   const loginData = new URLSearchParams() // 用于构造 form 数据
+    //   loginData.append('username', this.loginForm.username)
+    //   loginData.append('password', this.loginForm.password)
+
+    //   this.loading = true // 开启加载状态
+    //   try {
+    //   // 发起 GET 请求
+    //     const response = await axios.get('http://localhost:5000/login', {
+    //       params: loginData
+    //     })
+
+    //     // 处理后端响应
+    //     const result = response.data
+    //     if (result === 'sss') {
+    //       this.$message.success('Login successful!')
+    //       this.$router.push({ path: '/dashboard' }) // 登录成功后跳转页面
+    //     } else {
+    //       this.$message.error(result) // 显示后端返回的错误信息
+    //     }
+    //   } catch (error) {
+    //     console.error('Login error:', error)
+    //     this.$message.error('An error occurred during login. Please try again later.')
+    //   } finally {
+    //     this.loading = false // 关闭加载状态
+    //   }
+    // },
     getOtherQuery(query) {
       return Object.keys(query).reduce((acc, cur) => {
         if (cur !== 'redirect') {
