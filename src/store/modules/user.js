@@ -31,14 +31,20 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
+    console.log('执行login方法', userInfo)
     const { username, password } = userInfo
+    console.log('用户名和密码', username, password)
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        console.log('login方法返回', response)
+        // const { data } = response
+        commit('SET_TOKEN', response.token)
+        setToken(response.token)
         resolve()
       }).catch(error => {
+        console.log('登录失败', error)
+        console.log('错误消息:', error.message) // 打印错误消息
+        console.log('错误堆栈:', error.stack) // 打印错误堆栈
         reject(error)
       })
     })
@@ -47,7 +53,9 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
+      console.log('开始获取用户信息')
       getInfo(state.token).then(response => {
+        console.log('获取的用户信息', response)
         const { data } = response
 
         if (!data) {
@@ -67,6 +75,7 @@ const actions = {
         commit('SET_INTRODUCTION', introduction)
         resolve(data)
       }).catch(error => {
+        console.log('获取用户信息遇到错误' + error)
         reject(error)
       })
     })

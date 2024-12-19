@@ -63,6 +63,7 @@
 <script>
 
 import SocialSign from './components/SocialSignin'
+// import axios from 'axios'
 
 export default {
   name: 'Login',
@@ -143,10 +144,29 @@ export default {
         this.$refs.password.focus()
       })
     },
+    // handleLogin() {
+    //   this.$refs.loginForm.validate(valid => {
+    //     if (valid) {
+    //       this.loading = true
+    //       this.$store.dispatch('user/login', this.loginForm)
+    //         .then(() => {
+    //           this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+    //           this.loading = false
+    //         })
+    //         .catch(() => {
+    //           this.loading = false
+    //         })
+    //     } else {
+    //       console.log('error submit!!')
+    //       return false
+    //     }
+    //   })
+    // },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
+          console.log('执行handleLogin')
           this.$store.dispatch('user/login', this.loginForm)
             .then(() => {
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
@@ -183,7 +203,7 @@ export default {
 
     //     // 处理后端响应
     //     const result = response.data
-    //     if (result === 'sss') {
+    //     if (result.token) {
     //       this.$message.success('Login successful!')
     //       this.$router.push({ path: '/dashboard' }) // 登录成功后跳转页面
     //     } else {
