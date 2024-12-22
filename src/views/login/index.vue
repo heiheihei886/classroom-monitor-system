@@ -45,29 +45,53 @@
         </el-form-item>
       </el-tooltip>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
-      <el-button type="primary" style="width:100%;margin-bottom:30px;" @click="handleRegister">Register</el-button>
+      <el-form-item prop="captcha">
+        <span class="svg-container">
+          <svg-icon icon-class="password" />
+        </span>
+        <el-input
+          ref="captcha"
+          v-model="loginForm.captcha"
+          placeholder="Captcha"
+          name="captcha"
+          type="text"
+          tabindex="1"
+          autocomplete="on"
+          style="width:93%"
+        >
+          <template #suffix>
+            <el-button type="primary" style="height: 50px;" @click="getCaptcha">Get Captcha</el-button>
+          </template>
+        </el-input>
+      </el-form-item>
+
+      <el-form-item>
+        <el-button :loading="loading" type="primary" style="width:100%" @click.native.prevent="handleLogin">Login</el-button>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" style="width:100%" @click="handleRegister">Register</el-button>
+      </el-form-item>
 
     </el-form>
 
-    <el-dialog title="Or connect with" :visible.sync="showDialog">
+    <!-- <el-dialog title="Or connect with" :visible.sync="showDialog">
       Can not be simulated on local, so please combine you own business simulation! ! !
       <br>
       <br>
       <br>
       <social-sign />
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
 <script>
 
-import SocialSign from './components/SocialSignin'
-// import axios from 'axios'
+// import SocialSign from './components/SocialSignin'
+import axios from 'axios'
 
 export default {
   name: 'Login',
-  components: { SocialSign },
+  // components: { SocialSign },
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!value) {
@@ -83,14 +107,23 @@ export default {
         callback()
       }
     }
+    const validateCaptcha = (rule, value, callback) => {
+      if (value.length !== 6) {
+        callback(new Error('The captcha should be 6 digits'))
+      } else {
+        callback()
+      }
+    }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '',
+        password: '',
+        captcha: ''
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+        captcha: [{ required: true, trigger: 'blur', validator: validateCaptcha }]
       },
       passwordType: 'password',
       capsTooltip: false,
@@ -120,6 +153,8 @@ export default {
       this.$refs.username.focus()
     } else if (this.loginForm.password === '') {
       this.$refs.password.focus()
+    } else if (this.loginForm.captcha === '') {
+      this.$refs.captcha.focus()
     }
   },
   destroyed() {
@@ -143,6 +178,31 @@ export default {
       this.$nextTick(() => {
         this.$refs.password.focus()
       })
+    },
+    async getCaptcha() {
+      try {
+        const formData = new FormData()
+        formData.append('email', this.loginForm.username)
+        for (const [key, value] of formData.entries()) {
+          console.log(key, value)
+        }
+        const response = await axios.post('http://localhost:5000/get_captcha', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        // 处理后端返回的响应
+        if (response.data.success) {
+          this.$message.success('Please check your email for the captcha!')
+        } else {
+          this.$message.error(response.data.message || 'Fail to get captcha!')
+        }
+      } catch (error) {
+        console.error('Error getting captcha:', error)
+        this.$message.error('An error occurred while submitting the form.')
+      } finally {
+        this.loading = false
+      }
     },
     // handleLogin() {
     //   this.$refs.loginForm.validate(valid => {
