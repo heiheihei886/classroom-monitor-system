@@ -32,10 +32,10 @@ const actions = {
   // user login
   login({ commit }, userInfo) {
     console.log('执行login方法', userInfo)
-    const { username, password } = userInfo
+    const { username, password, captcha } = userInfo
     console.log('用户名和密码', username, password)
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
+      login({ username: username.trim(), password: password, captcha: captcha }).then(response => {
         console.log('login方法返回', response)
         // const { data } = response
         commit('SET_TOKEN', response.token)
