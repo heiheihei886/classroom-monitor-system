@@ -1,5 +1,41 @@
 <template>
   <el-row :gutter="40" class="panel-group">
+    <el-col
+      v-for="course in courseList"
+      :key="course.id"
+      :xs="12"
+      :sm="12"
+      :lg="6"
+      class="card-panel-col"
+    >
+      <div class="card-panel" @click="handleCourseData(course.id)">
+        <div class="card-panel-icon-wrapper icon-people">
+          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            {{ course.title }}
+          </div>
+          <count-to :start-val="0" :end-val="course.number" :duration="2600" class="card-panel-num" />
+          <div class="card-panel-subtext">
+            {{ course.introduction }}
+          </div>
+        </div>
+      </div>
+    </el-col>
+    <!-- <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+        <div class="card-panel-icon-wrapper icon-people">
+          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            SWE 5001
+          </div>
+          <count-to :start-val="0" :end-val="102" :duration="2600" class="card-panel-num" />
+        </div>
+      </div>
+    </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
         <div class="card-panel-icon-wrapper icon-people">
@@ -7,39 +43,52 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            New Visits
+            SWE 5002
           </div>
-          <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="130" :duration="2600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('messages')">
-        <div class="card-panel-icon-wrapper icon-message">
-          <svg-icon icon-class="message" class-name="card-panel-icon" />
+      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+        <div class="card-panel-icon-wrapper icon-people">
+          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Messages
+            SWE 5003
           </div>
-          <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="64" :duration="2600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('purchases')">
-        <div class="card-panel-icon-wrapper icon-money">
-          <svg-icon icon-class="money" class-name="card-panel-icon" />
+      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+        <div class="card-panel-icon-wrapper icon-people">
+          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            Purchases
+            SWE 5004
           </div>
-          <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="88" :duration="2600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+        <div class="card-panel-icon-wrapper icon-people">
+          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            SWE 5005
+          </div>
+          <count-to :start-val="0" :end-val="94" :duration="2600" class="card-panel-num" />
+        </div>
+      </div>
+    </el-col> -->
+    <!-- <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('shoppings')">
         <div class="card-panel-icon-wrapper icon-shopping">
           <svg-icon icon-class="shopping" class-name="card-panel-icon" />
@@ -51,20 +100,45 @@
           <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />
         </div>
       </div>
-    </el-col>
+    </el-col> -->
   </el-row>
 </template>
 
 <script>
 import CountTo from 'vue-count-to'
+import axios from 'axios'
 
 export default {
   components: {
     CountTo
   },
+  data() {
+    return {
+      courseList: [] // 用于存储从后端获取的课程列表
+    }
+  },
+  mounted() {
+    this.fetchCourseList() // 页面加载时获取课程列表
+  },
   methods: {
-    handleSetLineChartData(type) {
-      this.$emit('handleSetLineChartData', type)
+    fetchCourseList() {
+      axios
+        .get('http://localhost:5000/professor/courses', {
+          params: {
+            professor: 'test111' // 替换为实际教授名或动态参数
+          }
+        })
+        .then((response) => {
+          this.courseList = response.data.courses
+          console.log('获取课程列表成功:', this.courseList)
+        })
+        .catch((error) => {
+          console.error('获取课程列表失败:', error)
+        })
+    },
+    handleCourseData(courseId) {
+      this.$router.push({ path: '/documentation/index', query: { courseId: courseId }})
+      // this.$emit('handleSetLineChartData', courseId)
     }
   }
 }

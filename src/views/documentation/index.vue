@@ -1,57 +1,183 @@
 <template>
-  <div class="app-container documentation-container">
-    <a class="document-btn" target="_blank" href="https://store.akveo.com/products/vue-java-admin-dashboard-spring?utm_campaign=akveo_store-Vue-Vue_demo%2Fgithub&utm_source=vue_admin&utm_medium=referral&utm_content=demo_English_button">Java backend integration</a>
-    <a class="document-btn" target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/">Documentation</a>
-    <a class="document-btn" target="_blank" href="https://github.com/PanJiaChen/vue-element-admin/">Github Repository</a>
-    <a class="document-btn" target="_blank" href="https://panjiachen.gitee.io/vue-element-admin-site/zh/">国内文档</a>
-    <dropdown-menu class="document-btn" :items="articleList" title="系列文章" />
-    <a class="document-btn" target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/zh/job/">内推招聘</a>
-  </div>
+  <el-row :gutter="40" class="panel-group">
+    <el-col
+      v-for="courseRun in courseRunList"
+      :key="courseRun.id"
+      :xs="12"
+      :sm="12"
+      :lg="6"
+      class="card-panel-col"
+    >
+      <div class="card-panel" @click="handleCourseRun(courseRun.id, courseRun.runId)">
+        <div class="card-panel-icon-wrapper icon-people">
+          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            {{ courseRun.time }}
+          </div>
+          <!-- <count-to :start-val="0" :end-val="course.number" :duration="2600" class="card-panel-num" /> -->
+          <div class="card-panel-subtext">
+            {{ courseRun.classroom }}
+          </div>
+        </div>
+      </div>
+    </el-col>
+  </el-row>
 </template>
 
 <script>
-import DropdownMenu from '@/components/Share/DropdownMenu'
+// import CountTo from 'vue-count-to'
+import axios from 'axios'
 
 export default {
-  name: 'Documentation',
-  components: { DropdownMenu },
+  // components: {
+  //   CountTo
+  // },
   data() {
     return {
-      articleList: [
-        { title: '基础篇', href: 'https://juejin.im/post/59097cd7a22b9d0065fb61d2' },
-        { title: '登录权限篇', href: 'https://juejin.im/post/591aa14f570c35006961acac' },
-        { title: '实战篇', href: 'https://juejin.im/post/593121aa0ce4630057f70d35' },
-        { title: 'vue-admin-template 篇', href: 'https://juejin.im/post/595b4d776fb9a06bbe7dba56' },
-        { title: 'v4.0 篇', href: 'https://juejin.im/post/5c92ff94f265da6128275a85' },
-        { title: '自行封装 component', href: 'https://segmentfault.com/a/1190000009090836' },
-        { title: '优雅的使用 icon', href: 'https://juejin.im/post/59bb864b5188257e7a427c09' },
-        { title: 'webpack4（上）', href: 'https://juejin.im/post/59bb864b5188257e7a427c09' },
-        { title: 'webpack4（下）', href: 'https://juejin.im/post/5b5d6d6f6fb9a04fea58aabc' }
-      ]
+      courseId: '',
+      courseRunList: []
+    }
+  },
+  created() {
+    this.courseId = this.$route.query.courseId
+    console.log('Received Course ID:', this.courseId)
+  },
+  mounted() {
+    this.fetchCourseRun()
+  },
+  methods: {
+    fetchCourseRun() {
+      axios
+        .get('http://localhost:5000/professor/courseRunList', {
+          params: {
+            courseId: this.courseId
+          }
+        })
+        .then((response) => {
+          this.courseRunList = response.data.runs
+          console.log('获取课程列表run成功:', this.courseRunList)
+        })
+        .catch((error) => {
+          console.error('获取课程列表失败:', error)
+        })
+    },
+    handleCourseRun(courseId, runId) {
+      console.log('跳转detail中,课程id:', courseId + 'runId:', runId)
+      this.$router.push({ path: '/runDetail/index', query: { courseId: courseId, runId: runId }})
+      // this.$emit('handleSetLineChartData', courseId)
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.documentation-container {
-  margin: 50px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
+.panel-group {
+  margin-top: 18px;
 
-  .document-btn {
-    flex-shrink: 0;
-    display: block;
+  .card-panel-col {
+    margin-bottom: 32px;
+  }
+
+  .card-panel {
+    height: 108px;
     cursor: pointer;
-    background: black;
-    color: white;
-    height: 60px;
-    padding: 0 16px;
-    margin: 16px;
-    line-height: 60px;
-    font-size: 20px;
-    text-align: center;
+    font-size: 12px;
+    position: relative;
+    overflow: hidden;
+    color: #666;
+    background: #fff;
+    box-shadow: 4px 4px 40px rgba(0, 0, 0, .05);
+    border-color: rgba(0, 0, 0, .05);
+
+    &:hover {
+      .card-panel-icon-wrapper {
+        color: #fff;
+      }
+
+      .icon-people {
+        background: #40c9c6;
+      }
+
+      .icon-message {
+        background: #36a3f7;
+      }
+
+      .icon-money {
+        background: #f4516c;
+      }
+
+      .icon-shopping {
+        background: #34bfa3
+      }
+    }
+
+    .icon-people {
+      color: #40c9c6;
+    }
+
+    .icon-message {
+      color: #36a3f7;
+    }
+
+    .icon-money {
+      color: #f4516c;
+    }
+
+    .icon-shopping {
+      color: #34bfa3
+    }
+
+    .card-panel-icon-wrapper {
+      float: left;
+      margin: 14px 0 0 14px;
+      padding: 16px;
+      transition: all 0.38s ease-out;
+      border-radius: 6px;
+    }
+
+    .card-panel-icon {
+      float: left;
+      font-size: 48px;
+    }
+
+    .card-panel-description {
+      float: right;
+      font-weight: bold;
+      margin: 26px;
+      margin-left: 0px;
+
+      .card-panel-text {
+        line-height: 18px;
+        color: rgba(0, 0, 0, 0.45);
+        font-size: 16px;
+        margin-bottom: 12px;
+      }
+
+      .card-panel-num {
+        font-size: 20px;
+      }
+    }
+  }
+}
+
+@media (max-width:550px) {
+  .card-panel-description {
+    display: none;
+  }
+
+  .card-panel-icon-wrapper {
+    float: none !important;
+    width: 100%;
+    height: 100%;
+    margin: 0 !important;
+
+    .svg-icon {
+      display: block;
+      margin: 14px auto !important;
+      float: none !important;
+    }
   }
 }
 </style>
