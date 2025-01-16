@@ -6,7 +6,7 @@ import jwt
 import datetime
 
 app = Flask(__name__)
-CORS(app, origins="http://localhost:9527")
+CORS(app, origins="http://localhost:9528")
 app.config.from_object(config)
 db.init_app(app)
 

@@ -24,6 +24,26 @@ class Student(db.Model):
         return f'<User {self.username}>'
 
 
+class Performance(db.Model):
+    __tablename__ = 'performance'
+    course_id = db.Column(db.String(45), primary_key=True)
+    run_id = db.Column(db.Integer, primary_key=True)
+    student_username = db.Column(db.String(45), primary_key=True)
+    attendance_days = db.Column(db.Integer)
+    completed_days = db.Column(db.Integer)
+    angry = db.Column(db.Integer)
+    disgust = db.Column(db.Integer)
+    fear = db.Column(db.Integer)
+    happy = db.Column(db.Integer)
+    neutral = db.Column(db.Integer)
+    sad = db.Column(db.Integer)
+    surprise = db.Column(db.Integer)
+
+    def __repr__(self):
+        return (f'<Performance course_id={self.course_id}, run_id={self.run_id}, '
+                f'student_username={self.student_username}>')
+
+
 def add(username, password, name, subject, course_ids):
     new_user = User(username=username, password=password, permission=4)
     new_student = Student(username=username, name=name, subject=subject, course_ids=course_ids)

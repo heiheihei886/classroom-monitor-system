@@ -1,7 +1,10 @@
+from flask import Flask, Response
 from deepface import DeepFace
 import cv2
 import os
 import tempfile
+
+app = Flask(__name__)
 
 # 设置人脸数据库路径
 face_db_path = "faces"  # 存储已知人脸图像的文件夹路径
@@ -15,79 +18,75 @@ for file in os.listdir(face_db_path):
             "path": os.path.join(face_db_path, file)
         })
 
-# 打开摄像头
+# 摄像头捕获
 cap = cv2.VideoCapture(0)
 
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        break
 
-    # 初始化人脸计数
-    face_count = 0
+def generate_frames():
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-    try:
-        # 使用DeepFace检测和分析人脸
-        results = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
+        try:
+            face_count = 0
+            results = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
+            faces = results if isinstance(results, list) else [results]
+            face_count = len(faces)
 
-        # 如果检测到人脸，可能是单个人脸或多个人脸
-        if isinstance(results, list):
-            faces = results
-        else:
-            faces = [results]  # 包装为列表，以便统一处理
+            for face in faces:
+                # 获取每张人脸的区域
+                x, y, w, h = face['region']['x'], face['region']['y'], face['region']['w'], face['region']['h']
+                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)  # 绘制人脸框
 
-        # 统计人脸个数
-        face_count = len(faces)
+                # 获取情绪信息
+                emotion = face['dominant_emotion']
 
-        for face in faces:
-            # 获取每张人脸的区域
-            x, y, w, h = face['region']['x'], face['region']['y'], face['region']['w'], face['region']['h']
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)  # 绘制人脸框
+                # 提取人脸区域图像
+                face_image = frame[y:y + h, x:x + w]
 
-            # 获取情绪信息
-            emotion = face['dominant_emotion']
+                # 默认显示的名字是 "Unknown"
+                found_name = "Unknown"
 
-            # 提取人脸区域图像
-            face_image = frame[y:y+h, x:x+w]
+                # 将人脸区域图像保存为临时文件
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
+                    temp_filename = temp_file.name
+                    cv2.imwrite(temp_filename, face_image)
 
-            # 人脸识别：默认“Unknown”，匹配数据库
-            found_name = "Unknown"
-            
-            # 将人脸区域图像保存为临时文件，用于 DeepFace.find()
-            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-                temp_filename = temp_file.name + ".jpg"
-                cv2.imwrite(temp_filename, face_image)
+                try:
+                    # 使用 DeepFace 对比数据库
+                    df_result = DeepFace.find(img_path=temp_filename, db_path=face_db_path, enforce_detection=False)
+                    if len(df_result) > 0:
+                        # 获取识别的名字
+                        found_name = os.path.splitext(os.path.basename(df_result[0]['identity'][0]))[0]
+                except Exception as e:
+                    print("识别失败:", e)
+                finally:
+                    # 删除临时文件
+                    os.remove(temp_filename)
 
-            try:
-                # 使用 DeepFace 对比已知人脸数据库
-                df_result = DeepFace.find(img_path=temp_filename, db_path=face_db_path, enforce_detection=False)
-                if len(df_result) > 0:
-                    # 提取人名（只显示文件名部分，去除路径和扩展名）
-                    found_name = os.path.splitext(os.path.basename(df_result[0]['identity'][0]))[0]
-            except Exception as e:
-                print("识别失败:", e)
-            finally:
-                # 删除临时文件
-                os.remove(temp_filename)
+                # 显示姓名和情绪
+                cv2.putText(frame, f"Name: {found_name}", (x, y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+                cv2.putText(frame, f"Emotion: {emotion}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
 
-            # 显示姓名和情绪
-            cv2.putText(frame, f"Name: {found_name}", (x, y - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
-            cv2.putText(frame, f"Emotion: {emotion}", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
+            # 显示总人脸数
+            cv2.putText(frame, f"Total Faces: {face_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
-        # 显示总人脸数
-        cv2.putText(frame, f"Total Faces: {face_count}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        except Exception as e:
+            print("分析失败:", e)
 
-    except Exception as e:
-        print("分析失败:", e)
-        continue
+        # 将帧编码为 JPEG
+        _, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
 
-    # 显示实时视频帧
-    cv2.imshow('Face Recognition and Emotion Analysis', frame)
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-    # 按'q'退出
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
 
-# 释放资源
-cap.release()
-cv2.destroyAllWindows()
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5001)
