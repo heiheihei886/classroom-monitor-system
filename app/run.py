@@ -4,11 +4,23 @@ from exts import db
 import config
 import jwt
 import datetime
+from flask_mail import Message, Mail
+import string
+import random
 
 app = Flask(__name__)
 CORS(app, origins="http://localhost:9528")
 app.config.from_object(config)
 db.init_app(app)
+mail = Mail(app)
+
+
+# @app.route("/mail/test", methods=['GET'])
+# def mail_test():
+#     # recipients是接收人，是一个数组可以给多人同时发送邮件
+#     message = Message(subject="测试", recipients=['e1221716@u.nus.edu'], body="这是一条测试邮件！！！")
+#     mail.send(message)
+#     return "邮件发送成功"
 
 
 class User(db.Model):
@@ -21,6 +33,16 @@ class User(db.Model):
 
     def __repr__(self):
         return f'<User {self.username}>'
+
+
+class Captcha(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'captcha'
+    email = db.Column(db.String(45), primary_key=True,)
+    captcha = db.Column(db.String(6))
+
+    def __repr__(self):
+        return f'<Captcha {self.email}>'
 
 
 def create_blueprint():
@@ -45,6 +67,33 @@ def create_blueprint():
 #         return "Username or password incorrect"
 #     return "sss"
 
+
+@app.route('/get_captcha', methods=['GET', 'POST'])
+def get_captcha():
+    email = request.form.get("email")
+    print(email)
+    if not email:
+        return jsonify({"success": False, "message": "Please enter email"}), 400
+    source = string.digits * 6
+    captcha = random.sample(source, 6)
+    # 列表变成字符串
+    captcha = "".join(captcha)  # 965083
+    print(captcha)
+    # I/O 操作
+    message = Message(subject="2FA", recipients=[email], body=f"Your captcha is: {captcha}")
+    mail.send(message)
+    # 使用数据库存储
+    email_captcha = Captcha.query.filter_by(email=email).first()
+    if email_captcha:
+        Captcha.query.filter_by(email=email).update({'captcha': captcha})
+        db.session.commit()
+    else:
+        email_captcha = Captcha(email=email, captcha=captcha)
+        db.session.add(email_captcha)
+        db.session.commit()
+    return jsonify({"success": True, "message": "Get captcha successfully"}), 200
+
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -52,14 +101,20 @@ def login():
     print(data)# 获取 JSON 数据
     username = data.get("username")
     password = data.get("password")
-    print(username, password)
+    captcha = data.get("captcha")
+    print(username, password, captcha)
     if not username:
         return jsonify({"error": "Please enter username"}), 400
     if not password:
         return jsonify({"error": "Please enter password"}), 400
+    if not captcha:
+        return jsonify({"error": "Please enter captcha"}), 400
     user = User.query.filter_by(username=username).first()
     if not user or user.password != password:  # 假设未使用加密存储
         return jsonify({"error": "Username or password incorrect"}), 401
+    email_captcha = Captcha.query.filter_by(email=username).first()
+    if not email_captcha or email_captcha.captcha != captcha:
+        return jsonify({"error": "captcha incorrect"}), 401
 
     # 生成 token
     payload = {
