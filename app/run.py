@@ -9,7 +9,7 @@ import string
 import random
 
 app = Flask(__name__)
-CORS(app, origins="http://localhost:9528")
+CORS(app, origins="http://localhost:9527")
 app.config.from_object(config)
 db.init_app(app)
 mail = Mail(app)
@@ -102,7 +102,6 @@ def login():
     username = data.get("username")
     password = data.get("password")
     captcha = data.get("captcha")
-    print(username, password, captcha)
     if not username:
         return jsonify({"error": "Please enter username"}), 400
     if not password:
@@ -157,6 +156,10 @@ def get_user_info():
         return jsonify({"error": "Token has expired"}), 401
     except jwt.InvalidTokenError:
         return jsonify({"error": "Invalid token"}), 401
+
+@app.route('/logout', methods=['POST'])
+def log_out():
+    return jsonify({"code": 200, "message": "Log out successful"}), 200
 
 
 if __name__ == '__main__':
