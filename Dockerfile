@@ -3,6 +3,7 @@ WORKDIR /professor
 COPY . /professor
 RUN apt-get update -y
 RUN apt-get install python3-dev default-libmysqlclient-dev build-essential pkg-config -y
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 ENV FLASK_APP=run.py
 ENV FLASK_RUN_HOST=0.0.0.0
