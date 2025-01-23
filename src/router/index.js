@@ -111,6 +111,32 @@ export const constantRoutes = [
         meta: { title: 'Course Run Detail', icon: 'documentation', affix: true }
       }
     ]
+  },
+  {
+    path: '/runlist',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/run-list/index'),
+        name: 'Runlist',
+        meta: { title: 'Course Run list', icon: 'documentation', affix: true }
+      }
+    ]
+  },
+  {
+    path: '/courseResult',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/course-result/index'),
+        name: 'Result',
+        meta: { title: 'Course behaviour', icon: 'documentation', affix: true }
+      }
+    ]
   }
   // {
   //   path: '/guide',
@@ -252,43 +278,43 @@ export const asyncRoutes = [
   //   ]
   // },
 
-  {
-    path: '/error',
-    component: Layout,
-    redirect: 'noRedirect',
-    name: 'ErrorPages',
-    meta: {
-      title: 'Error Pages',
-      icon: '404'
-    },
-    children: [
-      {
-        path: '401',
-        component: () => import('@/views/error-page/401'),
-        name: 'Page401',
-        meta: { title: '401', noCache: true }
-      },
-      {
-        path: '404',
-        component: () => import('@/views/error-page/404'),
-        name: 'Page404',
-        meta: { title: '404', noCache: true }
-      }
-    ]
-  },
+  // {
+  //   path: '/error',
+  //   component: Layout,
+  //   redirect: 'noRedirect',
+  //   name: 'ErrorPages',
+  //   meta: {
+  //     title: 'Error Pages',
+  //     icon: '404'
+  //   },
+  //   children: [
+  //     {
+  //       path: '401',
+  //       component: () => import('@/views/error-page/401'),
+  //       name: 'Page401',
+  //       meta: { title: '401', noCache: true }
+  //     },
+  //     {
+  //       path: '404',
+  //       component: () => import('@/views/error-page/404'),
+  //       name: 'Page404',
+  //       meta: { title: '404', noCache: true }
+  //     }
+  //   ]
+  // },
 
-  {
-    path: '/error-log',
-    component: Layout,
-    children: [
-      {
-        path: 'log',
-        component: () => import('@/views/error-log/index'),
-        name: 'ErrorLog',
-        meta: { title: 'Error Log', icon: 'bug' }
-      }
-    ]
-  },
+  // {
+  //   path: '/error-log',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'log',
+  //       component: () => import('@/views/error-log/index'),
+  //       name: 'ErrorLog',
+  //       meta: { title: 'Error Log', icon: 'bug' }
+  //     }
+  //   ]
+  // },
 
   // {
   //   path: '/excel',
@@ -389,16 +415,16 @@ export const asyncRoutes = [
   //   ]
   // },
 
-  {
-    path: 'external-link',
-    component: Layout,
-    children: [
-      {
-        path: 'https://github.com/PanJiaChen/vue-element-admin',
-        meta: { title: 'External Link', icon: 'link' }
-      }
-    ]
-  },
+  // {
+  //   path: 'external-link',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'https://github.com/PanJiaChen/vue-element-admin',
+  //       meta: { title: 'External Link', icon: 'link' }
+  //     }
+  //   ]
+  // },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }

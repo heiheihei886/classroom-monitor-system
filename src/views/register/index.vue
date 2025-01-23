@@ -158,10 +158,10 @@ export default {
         courses: [{ type: 'array', required: true, message: 'Please select at least one course', trigger: 'change' }]
       },
       courses: [ // 可选项数组
-        { value: 'Math', label: 'Mathematics' },
-        { value: 'Science', label: 'Science' },
-        { value: 'History', label: 'History' },
-        { value: 'Art', label: 'Art' }
+        { value: 'SWE 5001', label: 'SWE 5001' },
+        { value: 'SWE 5002', label: 'SWE 5002' },
+        { value: 'SWE 5003', label: 'SWE 5003' },
+        { value: 'SWE 5004', label: 'SWE 5004' }
       ],
       imageUrl: '',
       loading: false

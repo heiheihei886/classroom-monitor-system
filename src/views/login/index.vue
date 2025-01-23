@@ -52,7 +52,7 @@
         <el-input
           ref="captcha"
           v-model="loginForm.captcha"
-          placeholder="Captcha"
+          placeholder="Otp"
           name="captcha"
           type="text"
           tabindex="1"
@@ -60,7 +60,7 @@
           style="width:93%"
         >
           <template #suffix>
-            <el-button type="primary" style="height: 50px;" @click="getCaptcha">Get Captcha</el-button>
+            <el-button type="primary" style="height: 50px;" @click="getCaptcha">Get Otp</el-button>
           </template>
         </el-input>
       </el-form-item>
@@ -193,9 +193,9 @@ export default {
         })
         // 处理后端返回的响应
         if (response.data.success) {
-          this.$message.success('Please check your email for the captcha!')
+          this.$message.success('Please check your email for the otp!')
         } else {
-          this.$message.error(response.data.message || 'Fail to get captcha!')
+          this.$message.error(response.data.message || 'Fail to get otp!')
         }
       } catch (error) {
         console.error('Error getting captcha:', error)
@@ -229,7 +229,13 @@ export default {
           console.log('执行handleLogin')
           this.$store.dispatch('user/login', this.loginForm)
             .then(() => {
-              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+              this.$router.push({
+                path: this.redirect || '/',
+                query: {
+                  ...this.otherQuery,
+                  username: this.loginForm.username
+                }
+              })
               this.loading = false
             })
             .catch(() => {
