@@ -6,6 +6,7 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from './mixins/resize'
+import axios from 'axios'
 
 export default {
   mixins: [resize],
@@ -21,12 +22,20 @@ export default {
     height: {
       type: String,
       default: '300px'
+    },
+    username: {
+      type: String,
+      required: true
     }
   },
   data() {
     return {
-      chart: null
+      chart: null,
+      chartData: []
     }
+  },
+  created() {
+    this.fetchCourseBehavourData()
   },
   mounted() {
     this.$nextTick(() => {
@@ -56,23 +65,40 @@ export default {
         },
         series: [
           {
-            name: 'WEEKLY WRITE ARTICLES',
+            name: 'EMOTION ARTICLES',
             type: 'pie',
             roseType: 'radius',
             radius: [15, 95],
             center: ['50%', '38%'],
-            data: [
-              { value: 320, name: 'Happy' },
-              { value: 240, name: 'Surprise' },
-              { value: 149, name: 'Neutral' },
-              { value: 100, name: 'Sad' },
-              { value: 59, name: 'Disgust' }
-            ],
+            data: this.chartData,
             animationEasing: 'cubicInOut',
             animationDuration: 2600
           }
         ]
       })
+    },
+    fetchCourseBehavourData() {
+      console.log('开始获取图表数据:', this.username)
+      axios
+        .get('http://localhost:5000/professor/generalBehaviour', {
+          params: {
+            username: this.username
+          }
+        })
+        .then((response) => {
+          const courseData = response.data
+          console.log('获取课程数据成功:', courseData)
+
+          // 提取 emotions 数据
+          if (courseData && courseData.emotions) {
+            this.chartData = courseData.emotions
+            console.log('chartData:', this.chartData)
+            this.initChart() // 初始化图表
+          }
+        })
+        .catch((error) => {
+          console.error('获取课程数据失败:', error)
+        })
     }
   }
 }

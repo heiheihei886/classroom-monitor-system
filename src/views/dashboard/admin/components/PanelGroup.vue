@@ -18,7 +18,7 @@
           </div>
           <count-to :start-val="0" :end-val="course.number" :duration="2600" class="card-panel-num" />
           <div class="card-panel-subtext">
-            {{ course.introduction }}
+            {{ course.id }}
           </div>
         </div>
       </div>
@@ -112,6 +112,12 @@ export default {
   components: {
     CountTo
   },
+  props: {
+    username: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       courseList: [] // 用于存储从后端获取的课程列表
@@ -125,7 +131,7 @@ export default {
       axios
         .get('http://localhost:5000/professor/courses', {
           params: {
-            professor: 'test111' // 替换为实际教授名或动态参数
+            professor: this.username
           }
         })
         .then((response) => {
@@ -225,6 +231,11 @@ export default {
         color: rgba(0, 0, 0, 0.45);
         font-size: 16px;
         margin-bottom: 12px;
+      }
+
+      .card-panel-subtext {
+        font-size: 16px;
+        text-align: right;
       }
 
       .card-panel-num {
