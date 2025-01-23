@@ -97,19 +97,16 @@ def register():
 @professor.route('/generalBehaviour', methods=['GET'])
 def get_general_behaviour():
     username = request.args.get('username')
-    print(f"Username: {username}")
 
     course_ids = Course.query.filter(
         Course.professor == username
     ).with_entities(Course.course_id).all()
-    print(f"Course IDs: {course_ids}")
 
     course_ids_list = [course_id[0] for course_id in course_ids]
 
     performance_records = Performance.query.filter(
         Performance.course_id.in_(course_ids_list)
     ).all()
-    print(f"Performance records: {performance_records}")
 
     # 初始化一个字典来存储聚合结果
     aggregated_emotions = {
