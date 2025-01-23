@@ -25,6 +25,7 @@ class Student(db.Model):
 
 
 class Performance(db.Model):
+    __table_args__ = {'extend_existing': True}
     __tablename__ = 'performance'
     course_id = db.Column(db.String(45), primary_key=True)
     run_id = db.Column(db.Integer, primary_key=True)
