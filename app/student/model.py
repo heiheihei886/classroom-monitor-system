@@ -44,6 +44,21 @@ class Performance(db.Model):
                 f'student_username={self.student_username}>')
 
 
+class Course(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'course'
+    course_id = db.Column(db.String(45), primary_key=True)
+    title = db.Column(db.String(45))
+    professor = db.Column(db.String(45))
+    introduction = db.Column(db.String(100))
+    number_of_students = db.Column(db.Integer)
+    total_days = db.Column(db.Integer)
+    # 其他字段...
+
+    def __repr__(self):
+        return f'<Course {self.name}>'
+
+
 def add(username, password, name, subject, course_ids):
     new_user = User(username=username, password=password, permission=4)
     new_student = Student(username=username, name=name, subject=subject, course_ids=course_ids)

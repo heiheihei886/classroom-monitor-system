@@ -91,7 +91,7 @@ def get_captcha():
         email_captcha = Captcha(email=email, captcha=captcha)
         db.session.add(email_captcha)
         db.session.commit()
-    return jsonify({"success": True, "message": "Get captcha successfully"}), 200
+    return jsonify({"success": True, "message": "Get opt successfully"}), 200
 
 
 @app.route('/login', methods=['POST'])
@@ -147,7 +147,8 @@ def get_user_info():
             'data': {
                 'id': user.id,
                 'username': user.username,
-                'roles': 'admin'
+                # 'roles': 'admin'
+                'roles': 'admin' if user.permission == 3 else 'editor' if user.permission == 4 else 'unknown'
             }
         }
         return jsonify(user_info), 200

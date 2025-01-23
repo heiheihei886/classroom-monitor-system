@@ -13,6 +13,7 @@ class Professor(db.Model):
 
 
 class Course(db.Model):
+    __table_args__ = {'extend_existing': True}
     __tablename__ = 'course'
     course_id = db.Column(db.String(45), primary_key=True)
     title = db.Column(db.String(45))
