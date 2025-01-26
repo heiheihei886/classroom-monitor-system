@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from app import app
+from run import app
 
 
 class TestLogin(unittest.TestCase):
