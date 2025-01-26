@@ -50,7 +50,7 @@ export default {
   methods: {
     fetchCourseRun() {
       axios
-        .get('http://localhost:5000/professor/courseRunList', {
+        .get('/professor/courseRunList', {
           params: {
             courseId: this.courseId
           }

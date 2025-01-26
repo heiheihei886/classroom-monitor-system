@@ -190,7 +190,7 @@ export default {
             }
 
             // 使用 axios 发送 POST 请求到后端
-            const response = await axios.post('http://localhost:5000//student/register', formData, {
+            const response = await axios.post('/student/register', formData, {
               headers: {
                 'Content-Type': 'multipart/form-data'
               }

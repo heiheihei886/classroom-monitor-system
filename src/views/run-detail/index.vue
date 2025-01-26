@@ -59,7 +59,7 @@ export default {
   methods: {
     fetchDetail() {
       axios
-        .get('http://localhost:5000/student/runDetail', {
+        .get('/student/runDetail', {
           params: {
             courseId: this.courseId,
             runId: this.runId

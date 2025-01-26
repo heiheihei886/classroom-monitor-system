@@ -186,7 +186,7 @@ export default {
         for (const [key, value] of formData.entries()) {
           console.log(key, value)
         }
-        const response = await axios.post('http://localhost:5000/get_captcha', formData, {
+        const response = await axios.post('/get_captcha', formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }

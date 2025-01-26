@@ -123,7 +123,7 @@ export default {
   methods: {
     fetchCourseList() {
       axios
-        .get('http://localhost:5000/professor/courses', {
+        .get('/professor/courses', {
           params: {
             professor: 'test111' // 替换为实际教授名或动态参数
           }
