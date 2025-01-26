@@ -9,7 +9,7 @@ import string
 import random
 
 app = Flask(__name__)
-CORS(app, origins="http://localhost:9527")
+CORS(app)
 app.config.from_object(config)
 db.init_app(app)
 mail = Mail(app)
