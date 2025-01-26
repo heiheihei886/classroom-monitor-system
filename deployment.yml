@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-professor-deployment
+  labels:
+    app: backend-professor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-professor
+  template:
+    metadata:
+      labels:
+        app: backend-professor
+    spec:
+      containers:
+      - name: backend-professor
+        image: docker.io/library/{IMAGE}
+        imagePullPolicy: Never
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-professor-service
+spec:
+  selector:
+    app: backend-professor
+  ports:
+  - port: 5000
+    targetPort: 5000
+    nodePort: 30887
+  type: NodePort
