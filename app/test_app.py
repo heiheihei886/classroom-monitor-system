@@ -46,9 +46,9 @@ class TestLogin(unittest.TestCase):
         }
 
         data = {
-            'username': 'test',
-            'password': 'test123',
-            'captcha': '123456'
+            'username': 'test111',
+            'password': '111111',
+            'captcha': '626418'
         }
         response = self.client.post('/login', headers=headers, data=json.dumps(data))
         resp_json = response.data
