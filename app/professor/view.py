@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from .model import add_professor, Course, Run
+from .model import add_professor, Course, Run, Performance
 
 professor = Blueprint('professor', __name__)
 
@@ -92,3 +92,47 @@ def register():
         return "Register unsuccessfully"
     else:
         return "Register successfully"
+
+
+@professor.route('/generalBehaviour', methods=['GET'])
+def get_general_behaviour():
+    username = request.args.get('username')
+
+    course_ids = Course.query.filter(
+        Course.professor == username
+    ).with_entities(Course.course_id).all()
+
+    course_ids_list = [course_id[0] for course_id in course_ids]
+
+    performance_records = Performance.query.filter(
+        Performance.course_id.in_(course_ids_list)
+    ).all()
+
+    # 初始化一个字典来存储聚合结果
+    aggregated_emotions = {
+        'Happy': 0,
+        'Surprise': 0,
+        'Neutral': 0,
+        'Sad': 0,
+        'Disgust': 0,
+        'Angry': 0,
+        'Fear': 0
+    }
+
+    # 聚合情绪数据
+    for record in performance_records:
+        aggregated_emotions['Happy'] += record.happy
+        aggregated_emotions['Surprise'] += record.surprise
+        aggregated_emotions['Neutral'] += record.neutral
+        aggregated_emotions['Sad'] += record.sad
+        aggregated_emotions['Disgust'] += record.disgust
+        aggregated_emotions['Angry'] += record.angry
+        aggregated_emotions['Fear'] += record.fear
+
+    # 将聚合结果转换为所需的格式
+    filtered_performance = [{'value': value, 'name': key} for key, value in aggregated_emotions.items()]
+
+    if performance_records:
+        return jsonify({"success": True, "emotions": filtered_performance})
+    else:
+        return jsonify({"success": False, "message": "No performance record found"}), 404

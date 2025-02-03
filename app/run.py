@@ -16,7 +16,7 @@ from flask_security import auth_token_required
 
 
 app = Flask(__name__)
-CORS(app, origins="http://localhost:9530")
+CORS(app, origins="http://localhost:9527")
 app.config.from_object(config)
 db.init_app(app)
 mail = Mail(app)
@@ -106,6 +106,7 @@ def get_captcha():
     return jsonify({"success": True, "message": "Get captcha successfully"}), 200
 
 
+
 @app.route('/login', methods=['POST'])
 @limiter.limit("5 per minute")
 def login():
@@ -115,7 +116,6 @@ def login():
     username = data.get("username")
     password = data.get("password")
     captcha = data.get("captcha")
-    print(username, password, captcha)
     if not username:
         return jsonify({"error": "Please enter username"}), 400
     if not password:
@@ -165,7 +165,8 @@ def get_user_info():
             'data': {
                 'id': user.id,
                 'username': user.username,
-                'roles': 'admin'
+                # 'roles': 'admin'
+                'roles': 'admin' if user.permission == 3 else 'editor' if user.permission == 4 else 'unknown'
             }
         }
         return jsonify(user_info), 200
@@ -174,6 +175,10 @@ def get_user_info():
         return jsonify({"error": "Token has expired"}), 401
     except jwt.InvalidTokenError:
         return jsonify({"error": "Invalid token"}), 401
+
+@app.route('/logout', methods=['POST'])
+def log_out():
+    return jsonify({"code": 200, "message": "Log out successful"}), 200
 
 
 @app.route('/protected')

@@ -1,10 +1,10 @@
 import base64
+import json
 
 from flask import Blueprint, request, jsonify
-from .model import add, Student, Performance
+from .model import add, Student, Performance, Course
 from sqlalchemy import func
 import os
-
 
 student = Blueprint('student', __name__)
 
@@ -86,7 +86,6 @@ def get_course_run_detail_by_id():
     performances = Performance.query.filter_by(course_id=course_id, run_id=run_id).all()
     performance_dict = {p.student_username: p for p in performances}
 
-
     # 将查询结果转换为字典列表，并添加图片信息
     filtered_students = []
     for student_f in students:
@@ -118,3 +117,62 @@ def get_course_run_detail_by_id():
         filtered_students.append(student_info)
 
     return jsonify({"success": True, "students": filtered_students}), 200
+
+
+@student.route('/courses', methods=['GET'])
+def get_courses_by_student():
+    student_name = request.args.get('student')
+    if not student_name:
+        return jsonify({"error": "Please provide a student name"}), 400
+
+        # 查询学生
+    student = Student.query.filter_by(username=student_name).first()
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+
+    # 将 JSON 字符串解析为 Python 列表
+    course_ids = json.loads(student.course_ids)
+
+    # 使用解析后的列表进行过滤
+    courses = Course.query.filter(Course.course_id.in_(course_ids)).all()
+
+    # 将查询结果转换为字典列表
+    filtered_courses = [
+        {
+            'id': course.course_id,
+            'title': course.title,
+            'professor': course.professor,
+            'number': course.number_of_students
+        }
+        for course in courses
+    ]
+
+    return jsonify({"success": True, "courses": filtered_courses})
+
+
+@student.route('/courseBehaviour', methods=['GET'])
+def get_course_behaviour():
+    username = request.args.get('username')
+    run_id = request.args.get('runId')
+    course_id = request.args.get('courseId')
+
+    performance_record = Performance.query.filter(
+        Performance.student_username == username,
+        Performance.run_id == run_id,
+        Performance.course_id == course_id
+    ).first()
+
+    if performance_record:
+        filtered_performance = [
+            {'value': performance_record.happy, 'name': 'Happy'},
+            {'value': performance_record.surprise, 'name': 'Surprise'},
+            {'value': performance_record.neutral, 'name': 'Neutral'},
+            {'value': performance_record.sad, 'name': 'Sad'},
+            {'value': performance_record.disgust, 'name': 'Disgust'},
+            {'value': performance_record.angry, 'name': 'Angry'},
+            {'value': performance_record.fear, 'name': 'Fear'}
+        ]
+        return jsonify({"success": True, "emotions": filtered_performance})
+    else:
+        return jsonify({"success": False, "message": "No performance record found"}), 404
+
