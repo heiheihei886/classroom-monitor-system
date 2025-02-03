@@ -6,7 +6,7 @@ USERNAME = "root"
 PASSWORD = "nt1155141464"
 HOST = '127.0.0.1'
 PORT = '3306'
-DATABASE = 'classroom_student_monitoring_system'
+DATABASE = 'classroom_student_monitoring_system(new)'
 SQLALCHEMY_DATABASE_URI = '{}+{}://{}:{}@{}:{}/{}?charset=utf8'.format(DIALECT, DRIVER, USERNAME, PASSWORD, HOST, PORT,
                                                                        DATABASE)
 SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -19,3 +19,7 @@ MAIL_PORT = 587
 MAIL_USERNAME = "775681262@qq.com"
 MAIL_PASSWORD = "dqeeomeldfnqbeei"
 MAIL_DEFAULT_SENDER = "775681262@qq.com"
+
+REDIS_URL = "redis://127.0.0.1:6379/0"
+
+JWT_SECRET_KEY = "super-secret-key"

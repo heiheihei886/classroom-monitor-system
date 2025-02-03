@@ -14,6 +14,7 @@ def add():
     add_professor()
     return "success"
 
+
 # 获取指定老师所教授的课程列表
 @professor.route('/courses', methods=['GET'])
 def get_courses_by_professor():

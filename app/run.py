@@ -7,13 +7,22 @@ import datetime
 from flask_mail import Message, Mail
 import string
 import random
+from flask_apscheduler import APScheduler
+import time
+from flask_redis import FlaskRedis
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_security import auth_token_required
+
 
 app = Flask(__name__)
-CORS(app, origins="http://localhost:9528")
+CORS(app, origins="http://localhost:9530")
 app.config.from_object(config)
 db.init_app(app)
 mail = Mail(app)
-
+scheduler = APScheduler()
+redis_client = FlaskRedis(app)
+limiter = Limiter(get_remote_address, app=app, default_limits=["100 per hour"])
 
 # @app.route("/mail/test", methods=['GET'])
 # def mail_test():
@@ -29,7 +38,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(45))
     password = db.Column(db.String(45))
-    permission = db.Column(db.String(45))
+    name = db.Column(db.String(45))
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -40,6 +49,7 @@ class Captcha(db.Model):
     __tablename__ = 'captcha'
     email = db.Column(db.String(45), primary_key=True,)
     captcha = db.Column(db.String(6))
+    timestamp = db.Column(db.String(20))
 
     def __repr__(self):
         return f'<Captcha {self.email}>'
@@ -69,6 +79,7 @@ def create_blueprint():
 
 
 @app.route('/get_captcha', methods=['GET', 'POST'])
+@limiter.limit("1 per minute")
 def get_captcha():
     email = request.form.get("email")
     print(email)
@@ -82,19 +93,21 @@ def get_captcha():
     # I/O 操作
     message = Message(subject="2FA", recipients=[email], body=f"Your captcha is: {captcha}")
     mail.send(message)
+    redis_client.set(email, captcha, ex=300)
     # 使用数据库存储
-    email_captcha = Captcha.query.filter_by(email=email).first()
-    if email_captcha:
-        Captcha.query.filter_by(email=email).update({'captcha': captcha})
-        db.session.commit()
-    else:
-        email_captcha = Captcha(email=email, captcha=captcha)
-        db.session.add(email_captcha)
-        db.session.commit()
+    # email_captcha = Captcha.query.filter_by(email=email).first()
+    # if email_captcha:
+    #     Captcha.query.filter_by(email=email).update({'captcha': captcha, 'timestamp': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())})
+    #     db.session.commit()
+    # else:
+    #     email_captcha = Captcha(email=email, captcha=captcha, timestamp=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
+    #     db.session.add(email_captcha)
+    #     db.session.commit()
     return jsonify({"success": True, "message": "Get captcha successfully"}), 200
 
 
 @app.route('/login', methods=['POST'])
+@limiter.limit("5 per minute")
 def login():
     data = request.get_json()
     print('获取的数据')
@@ -112,9 +125,13 @@ def login():
     user = User.query.filter_by(username=username).first()
     if not user or user.password != password:  # 假设未使用加密存储
         return jsonify({"error": "Username or password incorrect"}), 401
-    email_captcha = Captcha.query.filter_by(email=username).first()
-    if not email_captcha or email_captcha.captcha != captcha:
+    value = redis_client.get(username).decode()
+    print(value)
+    if not value or value != captcha:
         return jsonify({"error": "captcha incorrect"}), 401
+    # email_captcha = Captcha.query.filter_by(email=username).first()
+    # if not email_captcha or email_captcha.captcha != captcha:
+    #     return jsonify({"error": "captcha incorrect"}), 401
 
     # 生成 token
     payload = {
@@ -159,6 +176,15 @@ def get_user_info():
         return jsonify({"error": "Invalid token"}), 401
 
 
+@app.route('/protected')
+@auth_token_required
+def protected_resource():
+    # 只有经过身份验证的用户才能访问此资源
+    return 'This is a protected resource.'
+
+
 if __name__ == '__main__':
     create_blueprint()
+    scheduler.init_app(app)
+    scheduler.start()
     app.run(debug=True)
