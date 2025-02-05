@@ -78,7 +78,6 @@ export default {
       })
     },
     fetchCourseBehavourData() {
-      console.log('开始获取图表数据:', this.username)
       axios
         .get('http://localhost:5000/professor/generalBehaviour', {
           params: {
@@ -87,7 +86,6 @@ export default {
         })
         .then((response) => {
           const courseData = response.data
-          console.log('获取课程数据成功:', courseData)
 
           // 提取 emotions 数据
           if (courseData && courseData.emotions) {
