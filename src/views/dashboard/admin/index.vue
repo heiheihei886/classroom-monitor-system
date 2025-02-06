@@ -2,7 +2,7 @@
   <div class="dashboard-editor-container">
     <!-- <github-corner class="github-corner" /> -->
 
-    <panel-group @handleSetLineChartData="handleSetLineChartData" />
+    <panel-group :username="username" />
 
     <!-- <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
       <line-chart :chart-data="lineChartData" />
@@ -16,7 +16,7 @@
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
         <div class="chart-wrapper">
-          <pie-chart />
+          <pie-chart :username="username" />
         </div>
       </el-col>
       <el-col :xs="24" :sm="24" :lg="8">
@@ -85,8 +85,12 @@ export default {
   },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis
+      lineChartData: lineChartData.newVisitis,
+      username: ''
     }
+  },
+  created() {
+    this.username = this.$route.query.username || ''
   },
   methods: {
     handleSetLineChartData(type) {

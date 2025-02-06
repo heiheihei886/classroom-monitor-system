@@ -129,9 +129,9 @@ export default {
   methods: {
     fetchCourseList() {
       axios
-        .get('/professor/courses', {
+        .get('http://localhost:5000/student/courses', {
           params: {
-            professor: this.username
+            student: this.username
           }
         })
         .then((response) => {
@@ -143,8 +143,7 @@ export default {
         })
     },
     handleCourseData(courseId) {
-      this.$router.push({ path: '/documentation/index', query: { courseId: courseId }})
-      // this.$emit('handleSetLineChartData', courseId)
+      this.$router.push({ path: '/runlist/index', query: { courseId: courseId, username: this.username }})
     }
   }
 }
@@ -233,13 +232,13 @@ export default {
         margin-bottom: 12px;
       }
 
-      .card-panel-subtext {
-        font-size: 16px;
-        text-align: right;
-      }
-
       .card-panel-num {
         font-size: 20px;
+      }
+
+      .card-panel-subtext{
+        font-size: 16px;
+        text-align: right;
       }
     }
   }
