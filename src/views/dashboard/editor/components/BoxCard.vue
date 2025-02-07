@@ -5,7 +5,7 @@
     </div>
     <div style="position:relative;">
       <pan-thumb :image="avatar" class="panThumb" />
-      <mallki class-name="mallki-text" text="PROOF OF CICD" />
+      <mallki class-name="mallki-text" text="11111111" />
       <div style="padding-top:35px;" class="progress-item">
         <span>SWE 5001</span>
         <el-progress :percentage="100" status="success" />
