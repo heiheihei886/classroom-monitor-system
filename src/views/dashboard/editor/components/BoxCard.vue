@@ -5,20 +5,20 @@
     </div>
     <div style="position:relative;">
       <pan-thumb :image="avatar" class="panThumb" />
-      <mallki class-name="mallki-text" text="PROOF OF CICD" />
+      <mallki class-name="mallki-text" text="Attendence Tracker" />
       <!-- <div class="progress-item">
-        <span>SWE 5003</span>
+        <span>SWE 5001</span>
         <el-progress :percentage="12" />
       </div>
       <div class="progress-item">
         <span>SWE 5004</span>
         <el-progress :percentage="100" status="success" />
       </div> --><!-- <div class="progress-item">
-        <span>SWE 5003</span>
+        <span>SWE 5002</span>
         <el-progress :percentage="12" />
       </div>
       <div class="progress-item">
-        <span>SWE 5004</span>
+        <span>SWE 5003</span>
         <el-progress :percentage="100" status="success" />
       </div> --><!-- <div class="progress-item">
         <span>SWE 5003</span>
