@@ -6,13 +6,50 @@
     <div style="position:relative;">
       <pan-thumb :image="avatar" class="panThumb" />
       <mallki class-name="mallki-text" text="PROOF OF CICD" />
+      <!-- <div class="progress-item">
+        <span>SWE 5003</span>
+        <el-progress :percentage="12" />
+      </div>
+      <div class="progress-item">
+        <span>SWE 5004</span>
+        <el-progress :percentage="100" status="success" />
+      </div> --><!-- <div class="progress-item">
+        <span>SWE 5003</span>
+        <el-progress :percentage="12" />
+      </div>
+      <div class="progress-item">
+        <span>SWE 5004</span>
+        <el-progress :percentage="100" status="success" />
+      </div> --><!-- <div class="progress-item">
+        <span>SWE 5003</span>
+        <el-progress :percentage="12" />
+      </div>
+      <div class="progress-item">
+        <span>SWE 5004</span>
+        <el-progress :percentage="100" status="success" />
+      </div> --><!-- <div class="progress-item">
+        <span>SWE 5003</span>
+        <el-progress :percentage="12" />
+      </div>
+      <div class="progress-item">
+        <span>SWE 5004</span>
+        <el-progress :percentage="100" status="success" />
+      </div> -->
       <div style="padding-top:35px;" class="progress-item">
         <span>SWE 5001</span>
         <el-progress :percentage="100" status="success" />
       </div>
       <div class="progress-item">
         <span>SWE 5002</span>
-        <el-progress :percentage="18" />
+        <el-progress :percentage="100" status="success" />
+      </div>
+      <div class="progress-item">
+        <span>SWE 5003</span>
+        <el-progress :percentage="50" />
+      </div>
+      <div class="progress-item">
+        <span>SWE 5004</span>
+        <el-progress :percentage="33" />
       </div>
       <!-- <div class="progress-item">
         <span>SWE 5003</span>
