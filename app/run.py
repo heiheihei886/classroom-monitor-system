@@ -22,7 +22,7 @@ db.init_app(app)
 mail = Mail(app)
 scheduler = APScheduler()
 redis_client = FlaskRedis(app)
-limiter = Limiter(get_remote_address, app=app, default_limits=["100 per hour"])
+limiter = Limiter(get_remote_address, app=app, default_limits=["3000 per hour"])
 
 # @app.route("/mail/test", methods=['GET'])
 # def mail_test():
@@ -59,9 +59,13 @@ def create_blueprint():
     from admin.view import admin  # 延迟导入
     from professor.view import professor
     from student.view import student
+    from analysis.view import analysis
+    from auth.view import auth
     app.register_blueprint(admin, url_prefix='/admin')
     app.register_blueprint(professor, url_prefix='/professor')
     app.register_blueprint(student, url_prefix='/student')
+    app.register_blueprint(analysis, url_prefix='/analysis')
+    app.register_blueprint(auth, url_prefix='/auth')
 
 
 # @app.route('/login', methods=['GET'])
@@ -78,7 +82,7 @@ def create_blueprint():
 #     return "sss"
 
 
-@app.route('/get_captcha', methods=['GET', 'POST'])
+@app.route('/get_otp', methods=['GET', 'POST'])
 @limiter.limit("1 per minute")
 def get_captcha():
     email = request.form.get("email")
@@ -106,7 +110,6 @@ def get_captcha():
     return jsonify({"success": True, "message": "Get captcha successfully"}), 200
 
 
-
 @app.route('/login', methods=['POST'])
 @limiter.limit("5 per minute")
 def login():
@@ -128,7 +131,7 @@ def login():
     value = redis_client.get(username).decode()
     print(value)
     if not value or value != captcha:
-        return jsonify({"error": "captcha incorrect"}), 401
+        return jsonify({"error": "Otp incorrect"}), 401
     # email_captcha = Captcha.query.filter_by(email=username).first()
     # if not email_captcha or email_captcha.captcha != captcha:
     #     return jsonify({"error": "captcha incorrect"}), 401
@@ -140,7 +143,7 @@ def login():
     }
     token = jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')
     print('成功生成token' + token)
-
+    redis_client.handle_redis_token(username, token)
     return jsonify({"code": 200, "message": "Login successful", "token": token}), 200
 
 
@@ -169,6 +172,7 @@ def get_user_info():
                 'roles': 'admin' if user.permission == 3 else 'editor' if user.permission == 4 else 'unknown'
             }
         }
+
         return jsonify(user_info), 200
 
     except jwt.ExpiredSignatureError:
@@ -176,7 +180,7 @@ def get_user_info():
     except jwt.InvalidTokenError:
         return jsonify({"error": "Invalid token"}), 401
 
-@app.route('/logout', methods=['POST'])
+@app.route('/logout', methods=['POST', 'GET'])
 def log_out():
     return jsonify({"code": 200, "message": "Log out successful"}), 200
 
